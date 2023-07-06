@@ -96,7 +96,7 @@ class SmartRouteMakerFacade():
 
 
 
-    def plan_kcircuit(self, start_coordinates,  options: dict, max_length = 50000) -> dict:
+    def plan_kcircuit(self, start_coordinates,  options: dict, max_length = 5000) -> dict:
         # max_length = 5000
         i_points = 10
 
@@ -145,12 +145,13 @@ class SmartRouteMakerFacade():
             #merge the subsections
             for m in self.planner.shortest_path(graph,points[i],points[j]):
                 cyclus.append(m)
+            cyclus_length += self.analyzer.shortest_path_length(graph,points[i],points[j])
             cyclus.pop(-1)   
-            # cyclus_length += analyzer.shortest_path_length(graph,points[i],points[j])
+            
 
         # path = list(set(cyclus))#, cyclus_length
         path = cyclus
-        path_length = 7        
+        path_length = cyclus_length    
                 
         if "analyze" in options and options['analyze']:
             route_analysis = self.analyzer.get_path_attributes(graph, path)

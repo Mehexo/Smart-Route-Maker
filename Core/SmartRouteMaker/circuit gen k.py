@@ -70,20 +70,78 @@ def circuit_gen_k(graph: MultiDiGraph, start_node: int, max_length:int, i_points
         points_data[cirkel_node]=graph.nodes[cirkel_node]
         points.append(cirkel_node)
     print(points)
+
+    #make route
     planner = Planner()
     analyzer = Analyzer()
-    cyclus = []
-    cyclus_length = 0
-    for i in range(0,len(points)-1):
-        j= i+1
-        #not needed because the last point is always the first because you go full circle
-        if j >= len(points):
-            j = 0
-        #merge the subsections
-        for m in planner.shortest_path(graph,points[i],points[j]):
-            cyclus.append(m)
-        # cyclus_length += analyzer.shortest_path_length(graph,points[i],points[j])
-    return cyclus
+    loss = float("inf")
+    for i in range(0,5):
+
+        
+        cyclus_temp = []
+        cyclus_length_temp = 0
+        for i in range(0,len(points)-1):
+            j= i+1
+            #not needed because the last point is always the first because you go full circle
+            if j >= len(points):
+                j = 0
+            #merge the subsections
+            for m in planner.shortest_path(graph,points[i],points[j]):
+                cyclus_temp.append(m)
+            cyclus_length_temp += analyzer.shortest_path_length(graph,points[i],points[j])
+        if len(cyclus_temp) != len(set(cyclus_temp)):
+            duplicates = []
+            for i, item in enumerate(cyclus_temp):
+                if cyclus_temp.count(item) > 1 and item not in duplicates:
+                    duplicates.append(item)       
+            for item in duplicates:
+                indices = []
+                for i,x in enumerate(cyclus_temp):
+                    if x == item:
+                        indices.append(i)
+                if indices !=  []:
+                    min_index = min(indices)
+                    max_index = max(indices)
+                    del cyclus_temp[min_index+1:max_index]
+            for dupe in duplicates:
+                if dupe in cyclus_temp:
+                    closest_node = ox.distance.nearest_nodes(graph, dupe, points)
+                    points.insert(i,points.index(closest_node))
+                    points.remove(closest_node)
+            cyclus_length_temp = 0
+            for i in range(0,len(points)-1):
+                j= i+1
+                if j >= len(points):
+                    j = 0
+                cyclus_length_temp += analyzer.shortest_path_length(graph,points[i],points[j])
+
+        new_loss = get_loss(cyclus_length_temp, max_length)
+        if loss <= new_loss:   
+            loss = new_loss
+            cyclus = cyclus_temp
+            cyclus_length = cyclus_length_temp
+        
+        change = 500
+
+        if i > 0:
+            for i in points:
+                angle = np.linspace(0, 2*np.pi, circle_dpoints) 
+                
+                degree = random.choice(angle)
+                difference_lon = math.cos(degree)* change / 111000
+                difference_lat = math.sin(degree)* change / 111000
+                y = float(graph.nodes[center]["y"]) + float(difference_lat)
+                x = float(graph.nodes[center]["x"]) + float(difference_lon)
+                cirkel_node = ox.nearest_nodes(graph, x, y)
+                closest_node = ox.distance.nearest_nodes(graph, cirkel_node, points)
+                points.insert(i,points.index(closest_node))
+                points.remove(closest_node)
+
+
+
+
+
+    return cyclus, cyclus_length
     # return list(set(cyclus))#, cyclus_length
     # for i in range(len(0,points)):
 
@@ -93,7 +151,7 @@ def circuit_gen_k(graph: MultiDiGraph, start_node: int, max_length:int, i_points
 
     #     path = planner.shortest_path(graph, start_node, end_node)
     #     start_node = ox.nearest_nodes(graph)   
-    #     planner.shortest_path(graphstart_node= start_node)
+    #     planner.shortest_path(graph, start_node= start_node)
         
 
 
@@ -103,16 +161,42 @@ def circuit_gen_k(graph: MultiDiGraph, start_node: int, max_length:int, i_points
 
     #Graph.closest_node(graph,(graph.))
     #first_path = ox.shortest_path(graph, start_node, end_node)
+def delete_nodes_between_duplicates(lst):
+    duplicates = []
+    for i, item in enumerate(lst):
+        if lst.count(item) > 1 and item not in duplicates:
+            duplicates.append(item)
+
+    for item in duplicates:
+        indices = [i for i, x in enumerate(lst) if x == item]
+        min_index = min(indices)
+        max_index = max(indices)
+        del lst[min_index+1:max_index]
+
+    return lst
+
+    # Example usage
+    
+
+
+
+def get_loss(route_dist, kms_target, height, height_target):
+    
+  dist_delta = abs(kms_target - route_dist)
+  loss_dist = dist_delta
+
+  loss = loss_dist # + height, inlcine,
+  return loss     
 
 if __name__ == "__main__" :
     #k is afstand in meter van route
-    k = 10000
+    k = 5000
     start_point =str(50.880848676808334)+","+str( 5.960501432418824)
     graph_class = Graph()
     
     print(start_point)
     start_coordinates = normalize_coordinates(start_point)
-    graph = Graph.full_geometry_point_graph(graph_class, start_coordinates, radius= k) 
+    graph = Graph.full_geometry_point_graph(graph_class, start_coordinates, radius= 5000) 
 
 
     print(graph)
@@ -129,25 +213,15 @@ if __name__ == "__main__" :
     #         print("kilometers = ", kilometers[i],"\naantal punten op cirkel = ", k_values[j],"\nExecution time : ", end_time -start_time)
      
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    pause = input("pause")
-    path =  circuit_gen_k(graph, start_node, k, 5)
+    # pause = input("pause")
+    start = timeit.timeit()
+    path, length =  circuit_gen_k(graph, start_node, k, 5)
+    end = timeit.timeit()
+    print("time elapsed: ", end - start)
     # path, length =circuit_gen_k(graph, start_node, k, 4)
     print("path =", end = " ")
     print(path)
+    print("lengte = " , length)
     print("finished")
     # print("length =", end = " ")
     # print(length)
