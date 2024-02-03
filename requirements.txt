@@ -14,11 +14,9 @@ debugpy==1.6.3
 decorator==5.1.1
 entrypoints==0.4
 executing==1.1.1
-Fiona @ file:///C:/Users/mhans/Desktop/afstuderen/Code/Smart-Route-Maker/smartrm/Fiona-1.8.21-cp310-cp310-win_amd64.whl
 Flask==2.2.2
 folium==0.13.0
 fonttools==4.37.4
-GDAL @ file:///C:/Users/mhans/Desktop/afstuderen/Code/Smart-Route-Maker/smartrm/GDAL-3.4.3-cp310-cp310-win_amd64.whl
 geographiclib==2.0
 geopandas==0.11.1
 geopy==2.3.0
