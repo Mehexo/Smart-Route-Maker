@@ -109,7 +109,37 @@ class SmartRouteMakerFacade():
 
         return tuple([float(coordinate.strip()) for coordinate in coordinates.split(delimiter)])  
 
+    def get_loss(route_dist, kms_target, height = 0, height_target = 0, wegdekverhard = 0, wegdeknietverhard = 0, wegdek_target = None, printb = False):
+        length_loss = abs(route_dist*1000 / kms_target - 1)
+        height_loss = abs(height / height_target - 1)
 
+        if wegdek_target == None:
+            wegdek_loss = 0
+        else:
+            if wegdek_target > 0.5:
+                wegdek_loss = abs(wegdekverhard / route_dist -1)
+            else:
+                wegdek_loss = abs(wegdeknietverhard / route_dist-1)  
+        loss = (float(length_loss) + float(height_loss) + float(wegdek_loss))/3 # + height, surface,
+        if printb == True:
+            donothing = 0
+            #   print(f"distance from target: {length_loss}")
+            #   print(f"height from target: {height_loss}")
+        return float(loss) ,length_loss, height_loss, wegdek_loss     
+
+
+    def calculate_height(self, graph, route, elevation_data):
+        route_elevations = []
+        for row in route:
+            elevation = elevation_data.get_elevation(graph.nodes[row]["y"],graph.nodes[row]['x'])
+            route_elevations.append(elevation)
+        print(route_elevations)
+        d_plus_out = 0
+        for i, val in enumerate(route_elevations[1:]):
+            if val > route_elevations[i]:
+                d_plus_out += val - route_elevations[i]
+            # print(f'{i+1} - prec_elev: {route_elevations[i]}, elev: {val}, d+: {d_plus_out}')
+        return route_elevations, d_plus_out
 
 
 
@@ -191,50 +221,7 @@ class SmartRouteMakerFacade():
                     cyclus_temp.append(m)
                 cyclus_length_temp += self.analyzer.shortest_path_length(graph,points[waypoint_start],points[waypoint_end])
             
-            # if len(cyclus_temp) != len(set(cyclus_temp)):
-            #     duplicates = []
-            #     #find all duplicates
-            #     for i, item in enumerate(cyclus_temp):
-            #         if cyclus_temp.count(item) > 1 and item not in duplicates:
-            #             duplicates.append(item)
-            #     for p in points:
-            #         #check of er naast ieder point duplicaten aan waardes zitten en verwijder deze todat je geen duplicaten meer tegenkomt
-            #         p_index = cyclus_temp.index(p)
-            #         check = True
-            #         difference = 1
-            #         to_delete = [] #list of indexen
-                    
-            #         deleted = False
-            #         while check:
-            #             if p == points[-1]:
-            #                 check = False
-                            
-            #             else:
-            #                 if cyclus_temp[p_index-difference]==cyclus_temp[p_index+difference]:
-            #                     to_delete.append(p_index-difference)
-            #                     to_delete.append(p_index+difference)
-            #                     deleted = True
-            #                 else:
-            #                     check = False
-            #                 difference += 1
-            #         if deleted == True:
-            #             del to_delete[-1]#zorgt ervoor dat het verbind stuk blijft
-            #             to_delete.append(p_index)
-                        
 
-
-            #         for r in to_delete:
-            #             del cyclus_temp[r]
-            #     '''
-            #     vervang een point door het dichtsbijzijnde duplicate punt dat nog steeds in de route zit.
-            #     '''
-            #     for p in points:
-            #         if p == 0 or p == "0": #something happens here that i don't know how to fix
-            #             continue
-            #         distances = []
-            #         if p not in cyclus_temp:
-            #             continue
-            #             #move p to fit on cyclus temp
 
             print(f"oude loss: {loss}")
             elevations, height_route = self.calculate_height(graph, cyclus_temp,elevation_data)
