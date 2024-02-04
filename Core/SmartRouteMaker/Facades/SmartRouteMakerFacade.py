@@ -32,7 +32,7 @@ class SmartRouteMakerFacade():
     def get_graph(self, start_coordinates: str, radius:int = 10000, route_type:str ="bike"):
         start = self.normalize_coordinates(start_coordinates)
         graph = self.graph.full_geometry_point_graph(start,
-                                                     radius=0.7 * radius,
+                                                     radius=0.5 * radius,
                                                      type= route_type)
         return graph
     

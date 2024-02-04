@@ -55,7 +55,7 @@ class Visualizer:
             Dict: Visualisation dictionary.
         """        
 
-        with open('./srm/Core/SmartRouteMaker/config/VisualisationSettings.json', 'r') as settings:
+        with open('./Smart-Route-Maker/Core/SmartRouteMaker/config/VisualisationSettings.json', 'r') as settings:
             visualisationSettings = json.load(settings)
 
         visualisation = {}
@@ -109,7 +109,7 @@ class Visualizer:
             str: Hex value of the surface.
         """        
 
-        with open('./srm/Core/SmartRouteMaker/config/VisualisationSettings.json', 'r') as settings:
+        with open('./Smart-Route-Maker/Core/SmartRouteMaker/config/VisualisationSettings.json', 'r') as settings:
             visualisationSettings = json.load(settings)
 
         return visualisationSettings['surfaces'][surface]
