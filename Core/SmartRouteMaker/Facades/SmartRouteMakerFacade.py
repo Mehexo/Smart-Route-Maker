@@ -29,6 +29,18 @@ class SmartRouteMakerFacade():
         self.graph = Graph.Graph()
         self.planner = Planner.Planner()
 
+    def setup(self,start_point, distance):
+        
+        start_coordinates = self.normalize_coordinates(start_point)
+        graph = self.graph.full_geometry_point_graph(start_coordinates, radius= .5*distance, type="bike")
+                
+    
+        Y,X = start_coordinates
+        start_node = ox.nearest_nodes(graph, X, Y) 
+        return graph, start_node
+
+
+        
     def get_graph(self, start_coordinates: str, radius:int = 10000, route_type:str ="bike"):
         start = self.normalize_coordinates(start_coordinates)
         graph = self.graph.full_geometry_point_graph(start,
@@ -150,14 +162,14 @@ class SmartRouteMakerFacade():
 
 
 
-    def plan_kcircuit(self, graph: MultiDiGraph, start_node: int, max_length:int = 10000, i_points: int = 5, max_height:int= 150, max_incline:int = 5,max_surface:int = None, iter:int = 30, options: dict = {"analyze": False, "surface_dist": False}) -> dict:
+    def plan_kcircuit(self, graph: MultiDiGraph, start_node: int, max_length:int = 10000, i_points: int = 5, max_height:int= 150, max_incline:int = 5,max_surface:int = None, iter:int = 30) -> dict:
         
         elevation_data = srtm.main.get_data()
-        variance = 1.1
+        variance = 1.2
         change = 500 #meters
         loss = float("inf")
         route_not_found = False
-        lengte_verhard =0
+        lengte_verhard = 0
         lengte_onverhard = 0
         points_data= dict()
         points =[]
@@ -192,10 +204,12 @@ class SmartRouteMakerFacade():
         #cirkel opzetten (randomizer voor middelpunt)
         angle = np.linspace(0, 2*np.pi, 360) 
         direction = angle[random.randint(0,359)]
+        degree = np.degrees(direction)
         opposite_direction = (direction + np.pi) % (2 * np.pi)
+        opposite_degree = np.degrees(opposite_direction)
         radius = max_length / math.pi / 2
-        difference_lon = math.cos(direction)* radius * variance / 111000
-        difference_lat = math.sin(direction)* radius * variance / 111000
+        difference_lon = math.cos(degree)* radius * variance / 111000
+        difference_lat = math.sin(degree)* radius * variance / 111000
         x=float(graph.nodes[start_node]["x"]) + float(difference_lon)
         y=float(graph.nodes[start_node]["y"]) + float(difference_lat)
         center = ox.nearest_nodes(graph, x , y)
@@ -212,15 +226,19 @@ class SmartRouteMakerFacade():
         
         angle = np.linspace(0, 2*np.pi, circle_dpoints) 
         for i in angle:
-            degree = degree = opposite_direction + i
-            difference_lon = math.cos(degree)* radius / 111000
-            difference_lat = math.sin(degree)* radius / 111000
+            degree = np.degrees(opposite_direction + i)
+            
+            difference_lon = math.cos(degree)* radius * variance / 111000
+            print(difference_lon)
+            difference_lat = math.sin(degree)* radius * variance / 111000
             y = float(graph.nodes[center]["y"]) + float(difference_lat)
             x = float(graph.nodes[center]["x"]) + float(difference_lon)
             cirkel_node = ox.nearest_nodes(graph, x, y)
             points_data[cirkel_node]=graph.nodes[cirkel_node]
             points.append(cirkel_node)
         
+        #make sure that you go past your starting location
+        angle[0] = start_node
 
 
         

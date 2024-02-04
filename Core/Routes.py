@@ -15,29 +15,22 @@ def index():
 def handle_routing():
     srmf = srm.SmartRouteMakerFacade()
     # start = srmf.normalize_coordinates(request.form['start_point'])
-    start_coordinates = request.form["start_point"]
-    start_coordinates = str(50.88148497726243)+","+str(5.962486267089845)
-    #                                                                                                                       eind_coordinates = str(50.89393847048056)+","+str(5.979846281499479)
-    # start = srmf.normalize_coordinates(start_coordinates)
-    # end = srmf.normalize_coordinates(eind_coordinates)
 
-    # route = srmf.plan_route(start, end, options={"analyze": True, "surface_dist": True})
-    print(request.form["distance"])
+    start_coordinates = request.form["start_point"]
     wanted_distance = int(request.form["distance"])
-    wanted_distance = 15000
+    graph, start_node = srmf.setup(start_coordinates, wanted_distance)
+  
+    
+    
     wanted_height = 100
     # wanted_height = int(request.form["height"])
     # # wanted_incline = int(request.form["inlcine"])
     # # wanted_surface = int(request.form["surface"])
     # # elevation_data = srtm.main.get_data()
-    graph = srmf.get_graph(start_coordinates=start_coordinates,
-                           radius=wanted_distance,
-                           route_type= "bike"
-                           )
-    start_node = srmf.get_start_node(graph, start_coordinates)
+    
+    print(start_node)
     route = srmf.plan_kcircuit(graph = graph,
                                start_node = start_node,
-                               options={"analyze": False, "surface_dist": False},
                                max_length = wanted_distance,
                                max_height = wanted_height,
                                i_points= 5,
