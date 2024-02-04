@@ -65,10 +65,13 @@ class SmartRouteMakerFacade():
 
         if "analyze" in options and options['analyze']:
             route_analysis = self.analyzer.get_path_attributes(graph, path)
+            print("12")
         else:
             route_analysis = None
+            print("13")
         
         if "surface_dist" in options and options['surface_dist']:
+            print("14")
             surface_dist = self.analyzer.get_path_surface_distribution(route_analysis)
             surface_dist_visualisation = self.visualizer.build_surface_dist_visualisation(route_analysis, graph)
 
@@ -77,6 +80,7 @@ class SmartRouteMakerFacade():
             for type in surface_dist:
                 surface_dist_legenda[type] = (self.visualizer.get_surface_color(type))
         else:
+            print("15")
             surface_dist = None
             surface_dist_visualisation = None
         
@@ -242,7 +246,7 @@ class SmartRouteMakerFacade():
                     new_cirkel_node = ox.nearest_nodes(graph, x, y)
                     new_points.append(new_cirkel_node)
                 points = new_points
-                print(points)
+                
             
             
             for waypoint_start in range(0,len(points)-1):
@@ -299,28 +303,31 @@ class SmartRouteMakerFacade():
                 segments_path = seperate_paths
                 final_verhard = lengte_verhard
                 final_onverhard = lengte_onverhard
-                path = cyclus
-            
                 
-        if "analyze" in options and options['analyze']:
-            route_analysis = self.analyzer.get_path_attributes(graph, path)
-        else:
-            route_analysis = None
-        
-        if "surface_dist" in options and options['surface_dist']:
-            surface_dist = self.analyzer.get_path_surface_distribution(route_analysis)
-            surface_dist_visualisation = self.visualizer.build_surface_dist_visualisation(route_analysis, graph)
 
-            surface_dist_legenda = {}
-
-            for type in surface_dist:
-                surface_dist_legenda[type] = (self.visualizer.get_surface_color(type))
-        else:
-            surface_dist = None
-            surface_dist_visualisation = None
-            surface_dist_legenda = None
+        #clean the path for visualisation
+        path = [cyclus[0]]
+        for i in range(1, len(cyclus)):
+            if cyclus[i] != cyclus[i-1]:
+                path.append(cyclus[i])
+                
         
-        # simple_polylines = self.visualizer.extract_polylines_from_folium_map(graph, path, invert=False)
+        route_analysis = self.analyzer.get_path_attributes(graph, path)
+     
+       
+        
+       
+        surface_dist = self.analyzer.get_path_surface_distribution(route_analysis)
+        surface_dist_visualisation = self.visualizer.build_surface_dist_visualisation(route_analysis, graph)
+
+        surface_dist_legenda = {}
+
+        for type in surface_dist:
+            surface_dist_legenda[type] = (self.visualizer.get_surface_color(type))
+
+        
+        simple_polylines = self.visualizer.extract_polylines_from_folium_map(graph, path, invert=False)
+        
 
         output = {
             "start_node": start_node,
@@ -333,7 +340,8 @@ class SmartRouteMakerFacade():
             "surface_dist": surface_dist,
             "surface_dist_visualisation": surface_dist_visualisation,
             "surface_dist_legenda": surface_dist_legenda,
-            # "simple_polylines": simple_polylines
+            "simple_polylines": simple_polylines
+            # "line_graph": graph
         }
 
         return output

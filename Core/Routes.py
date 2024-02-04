@@ -22,7 +22,7 @@ def handle_routing():
     # end = srmf.normalize_coordinates(eind_coordinates)
 
     # route = srmf.plan_route(start, end, options={"analyze": True, "surface_dist": True})
-    
+    print(request.form["distance"])
     wanted_distance = int(request.form["distance"])
     wanted_distance = 15000
     wanted_height = 100
