@@ -207,12 +207,12 @@ class SmartRouteMakerFacade():
         #cirkel opzetten (randomizer voor middelpunt)
         angle = np.linspace(0, 2*np.pi, 360) 
         direction = angle[random.randint(0,359)]
-        degree = np.degrees(direction)
+        
         opposite_direction = (direction + np.pi) % (2 * np.pi)
-        opposite_degree = np.degrees(opposite_direction)
+        # opposite_degree = np.degrees(opposite_direction)
         radius = max_length / math.pi / 2
-        difference_lon = math.cos(degree)* radius * variance / 111000
-        difference_lat = math.sin(degree)* radius * variance / 111000
+        difference_lon = math.cos(direction)* radius * variance / 111000
+        difference_lat = math.sin(direction)* radius * variance / 111000
         x=float(graph.nodes[start_node]["x"]) + float(difference_lon)
         y=float(graph.nodes[start_node]["y"]) + float(difference_lat)
         center = ox.nearest_nodes(graph, x , y)
@@ -229,7 +229,7 @@ class SmartRouteMakerFacade():
         
         angle = np.linspace(0, 2*np.pi, circle_dpoints) 
         for i in angle:
-            degree = np.degrees(opposite_direction + i)
+            degree = opposite_direction + i
             
             difference_lon = math.cos(degree)* radius * variance / 111000
             difference_lat = math.sin(degree)* radius * variance / 111000
@@ -399,11 +399,11 @@ class SmartRouteMakerFacade():
         
         max_incline = max(incline)
         
-        # #clean the path for visualisation
-        # path = [cyclus[0]]
-        # for i in range(1, len(cyclus)):
-        #     if cyclus[i] != cyclus[i-1]:
-        #         path.append(cyclus[i])
+        #clean the path for visualisation
+        path = [cyclus[0]]
+        for i in range(1, len(cyclus)):
+            if cyclus[i] != cyclus[i-1]:
+                path.append(cyclus[i])
         
         #route visualization
         route_analysis = self.analyzer.get_path_attributes(graph, path)
