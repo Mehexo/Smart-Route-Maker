@@ -8,10 +8,20 @@
         <span class="block">{{ path_length }}km</span>
     </p>
 
-    <!-- <p class="text-white">
+    <p class="text-white">
         <span class="font-bold">Hoogtemeters van de route</span>
         <span class="block">{{ path_height }}m</span>
-    </p> -->
+    </p>
+
+    <p class="text-white">
+        <span class="font-bold">maximale helling</span>
+        <span class="block">{{ max_incline }}%</span>
+    </p>
+
+    <p class="text-white">
+        <span class="font-bold">percentage verhard</span>
+        <span class="block">{{ surface_percentage }}%</span>
+    </p>
 
     <p class="text-white mt-4">
         <span class="font-bold">Type wegdek (<a id="surfaceDistLink" class="underline cursor-pointer" onclick="toggleSurfaceDist()">visualiseer</a>)</span>
@@ -22,6 +32,10 @@
             </div>
         {% endfor %}
     </p>
+    <div>
+        <p class="text-white">hoogte grafiek</p>
+        <img src="data:image/png;base64,{{ line_graph }}" alt="Matplotlib Plot"> 
+      </div>
 {% endblock %}
 
 {% block js %}

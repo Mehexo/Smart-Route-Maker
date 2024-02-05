@@ -46,6 +46,10 @@ def handle_routing():
         surfaceDistLegenda=route['surface_dist_legenda'],
         surfaceDistVisualisation=route['surface_dist_visualisation'],
         path_length=route['path_length'],
-        # path_height = route['path_height'],
-        routeVisualisation=route['simple_polylines']
+        path_height = route['path_height'],
+        max_incline = route['max_incline'],
+        surface_percentage = route['surface_percentage'],
+        routeVisualisation=route['simple_polylines'],
+        line_graph = route['line_graph']
+
     )

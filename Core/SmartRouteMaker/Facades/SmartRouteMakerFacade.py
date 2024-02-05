@@ -16,6 +16,9 @@ import math
 import osmnx as ox
 import numpy as np
 import srtm
+import matplotlib.pyplot as plt
+import io
+import base64
 
 
 class SmartRouteMakerFacade():
@@ -229,7 +232,6 @@ class SmartRouteMakerFacade():
             degree = np.degrees(opposite_direction + i)
             
             difference_lon = math.cos(degree)* radius * variance / 111000
-            print(difference_lon)
             difference_lat = math.sin(degree)* radius * variance / 111000
             y = float(graph.nodes[center]["y"]) + float(difference_lat)
             x = float(graph.nodes[center]["x"]) + float(difference_lon)
@@ -238,7 +240,7 @@ class SmartRouteMakerFacade():
             points.append(cirkel_node)
         
         #make sure that you go past your starting location
-        angle[0] = start_node
+        points[0] = start_node
 
 
         
@@ -251,9 +253,10 @@ class SmartRouteMakerFacade():
                 distances = []
                 new_points =[]
                 for p in points:
-                    angle = np.linspace(0, 2*np.pi, circle_dpoints) 
+                    angle = np.linspace(0, 2*np.pi, 4) 
                     
-                    degree = random.choice(angle)
+                    direction = random.choice(angle)
+                    degree = np.degrees(direction)
                     difference_lon = math.cos(degree)* (change / 111000)
                     difference_lat = math.sin(degree)* (change / 111000)
                     y = float(graph.nodes[p]["y"]) + float(difference_lat)
@@ -323,18 +326,88 @@ class SmartRouteMakerFacade():
                 final_onverhard = lengte_onverhard
                 
 
-        #clean the path for visualisation
-        path = [cyclus[0]]
-        for i in range(1, len(cyclus)):
-            if cyclus[i] != cyclus[i-1]:
-                path.append(cyclus[i])
-                
         
+        
+        path = cyclus
+        #get data for graph        
+        cum_length = [0]
+        cum_length_temp = 0
+        for i, way in enumerate(path):
+            j = i+1
+            if j>= len(path):
+                break
+            cum_length_temp += self.analyzer.shortest_path_length(graph,path[i],path[j])
+            cum_length.append(cum_length_temp)
+
+        elevations, height_route = self.calculate_height(graph, path, elevation_data)
+
+
+        
+
+        # Create a plot
+        plt.plot(cum_length, elevations)
+        plt.xlabel('afstand in km')
+        plt.ylabel('hoogte in meters')
+        plt.title('relief')
+
+        # Save the plot to a BytesIO object
+        img_buf = io.BytesIO()
+        plt.savefig(img_buf, format='png')
+        img_buf.seek(0)
+
+        # Encode the image to base64 for HTML display
+        img_base64 = base64.b64encode(img_buf.read()).decode('utf-8')
+
+        # Close the plot to free up resources
+        plt.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        #calculate max incline
+        incline = []
+        dx = []
+        for i, way in enumerate(path):
+            j = i+1
+            if j>= len(path):
+                j = 0
+            if path[i] == path[j]:
+                delta_x = 000.1
+            #delta y /delta x
+            else:
+                delta_x = self.analyzer.shortest_path_length(graph,path[i],path[j])
+            dx.append(delta_x)
+            if delta_x == 0:
+                incline.append(0)
+            else:
+                incline.append((elevations[j]- elevations[i]) / (delta_x*1000))
+        
+        max_incline = max(incline)
+        
+        # #clean the path for visualisation
+        # path = [cyclus[0]]
+        # for i in range(1, len(cyclus)):
+        #     if cyclus[i] != cyclus[i-1]:
+        #         path.append(cyclus[i])
+        
+        #route visualization
         route_analysis = self.analyzer.get_path_attributes(graph, path)
      
-       
-        
-       
         surface_dist = self.analyzer.get_path_surface_distribution(route_analysis)
         surface_dist_visualisation = self.visualizer.build_surface_dist_visualisation(route_analysis, graph)
 
@@ -353,13 +426,14 @@ class SmartRouteMakerFacade():
             "path": cyclus,
             "path_length": cyclus_length,
             "path_height": cyclus_height,
+            "max_incline": max_incline*100,
             "route_analysis": route_analysis,
-            # "surface_percentage": final_verhard/max_surface,
+            "surface_percentage": (final_verhard/cyclus_length)*100,
             "surface_dist": surface_dist,
             "surface_dist_visualisation": surface_dist_visualisation,
             "surface_dist_legenda": surface_dist_legenda,
-            "simple_polylines": simple_polylines
-            # "line_graph": graph
+            "simple_polylines": simple_polylines,
+            "line_graph": img_base64
         }
 
         return output
