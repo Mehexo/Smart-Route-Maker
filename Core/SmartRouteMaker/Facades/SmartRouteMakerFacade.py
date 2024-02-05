@@ -428,7 +428,7 @@ class SmartRouteMakerFacade():
             "path_height": cyclus_height,
             "max_incline": max_incline*100,
             "route_analysis": route_analysis,
-            "surface_percentage": (final_verhard/cyclus_length)*100,
+            "surface_percentage": (final_verhard/cum_length_temp)*100,
             "surface_dist": surface_dist,
             "surface_dist_visualisation": surface_dist_visualisation,
             "surface_dist_legenda": surface_dist_legenda,
