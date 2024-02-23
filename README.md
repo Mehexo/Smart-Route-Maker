@@ -1,43 +1,33 @@
-## Usage
-
-> Note: Download GDAL and Fiona for your Python version [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/) first.
-If this does not work install them from the external installs folder. (python version 3.10.x)
-
-
-
-```
-$ pip install -r requirements.txt
-```
-
-Run the flask app.
-
-```
-$ flask --app srm run
-```
-
-
-if flask not found
-```
-python -m flask --app srm run
-```
 # Usage
 
 optional: create a virtual enviroment before installing libraries
 
 >Note: Download GDAL and Fiona for your Python version [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/) first.
 Install the SRM requirements through the requirements file.
+```
+$ pip install Fiona-1.8.21-cp310-cp310-win_amd64.whl
+$ pip install GDAL-3.4.3-cp310-cp310-win_amd64.whl
+```
 
 Install the SRM requirements through the requirements file.
 ```
 $ pip install -r requirements.txt
 ```
-eventuele variabelen die je kan aanpassen zijn:in 'Routes.py' wordt de genereer route functie aangeroepen
-In'SmartRouteMakerFacade.py' onder de definitie 'plan_k_circuit' kan de omtrek van de cirkel worden ingesteld als parameter 'max_length'in 'SmartRouteMakerFacade.py' onder de definitie'plan_k_circuit' kan het aantal punten op de cirkel worden aangepast door de 'i_points' variable te veranderen naar het aantal puntenin 'SmartRouteMakerFacade.py' onder de definitie 'plan_k_circuit' kan de 'variance' worden aangepast voor een groter of kleiner cirkelin 'Graph.py' onder de definitie 'full_geometry_point_graph'kan de maximale straal voor data ophalen van de api worden aangepastRun the flask app.command moet uitgevoerd worden in een command promt waarvan de huidige locatie de srm-master folder is
+Om de applicatie te runne moet het command promt worden geopend op de locatie van de master hier moet de volgende command worden uitgvoerd
 ```
-
 $ flask --app Smart-route-Maker run
 ```
 if flask not found
 ```
-python -m flask --app Smart-Route-Maker run
+$ python -m flask --app Smart-Route-Maker run
 ```
+
+onderdelen:
+routes.py
+-hier wordt de call aangeroepen tot het uitvoeren van de code
+smartroutemakerfacade.py
+-hier staat de code en de verwijzingen naar de objecten.
+results.html
+-hier worden de teruggegeven waardes gevisualiseerd op de webpagina
+
+hiernaast is er een test opgeving in de vorm van circuit gen k.ipynb hierinstaan nogeen aantal niet geimplementeerde functies en testing code.
