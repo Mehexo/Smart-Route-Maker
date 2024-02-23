@@ -165,7 +165,7 @@ class SmartRouteMakerFacade():
 
 
 
-    def plan_kcircuit(self, graph: MultiDiGraph, start_node: int, max_length:int = 10000, i_points: int = 5, max_height:int= 150, max_incline:int = 5,max_surface:int = None, iter:int = 30) -> dict:
+    def plan_kcircuit(self, graph: MultiDiGraph, start_node: int, max_length:int = 10000, i_points: int = 5, max_height:int= 150, maximum_incline:int = 20,max_surface:int = None, iter:int = 30) -> dict:
         
         elevation_data = srtm.main.get_data()
         variance = 1.2
@@ -316,7 +316,28 @@ class SmartRouteMakerFacade():
                                 wegdeknietverhard= lengte_onverhard,
                                 wegdek_target= max_surface,
                                 printb=True)
-            print(f"nieuwe loss: {new_loss}")
+            
+            print(f"nieuwe loss: {new_loss}")  
+            #calculate max incline
+            incline = []
+            dx = []
+            for i, way in enumerate(cyclus_temp):
+                j = i+1
+                if j>= len(path):
+                    j = 0
+                if path[i] == path[j]:
+                    delta_x = 000.1
+                #delta y /delta x
+                else:
+                    delta_x = self.analyzer.shortest_path_length(graph,path[i],path[j])
+                dx.append(delta_x)
+                if delta_x == 0:
+                    incline.append(0)
+                else:
+                    incline.append((elevations[j]- elevations[i]) / (delta_x*1000))
+            #if max inlcine is bigger in the second skip (always gives back alteast one answer)
+            if max_incline > maximum_incline and i>0:
+                continue
             if loss > new_loss: 
                 loss = new_loss
                 cyclus = cyclus_temp
@@ -363,25 +384,10 @@ class SmartRouteMakerFacade():
         plt.close()
 
 
-        #calculate max incline
-        incline = []
-        dx = []
-        for i, way in enumerate(path):
-            j = i+1
-            if j>= len(path):
-                j = 0
-            if path[i] == path[j]:
-                delta_x = 000.1
-            #delta y /delta x
-            else:
-                delta_x = self.analyzer.shortest_path_length(graph,path[i],path[j])
-            dx.append(delta_x)
-            if delta_x == 0:
-                incline.append(0)
-            else:
-                incline.append((elevations[j]- elevations[i]) / (delta_x*1000))
+      
         
         max_incline = max(incline)
+        if max_incline > and iter != 1
         
         #clean the path for visualisation
         path = [cyclus[0]]
