@@ -1,8 +1,9 @@
 ## Usage
 
 > Note: Download GDAL and Fiona for your Python version [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/) first.
+If this does not work install them from the external installs folder. (python version 3.10.x)
 
-Install the SRM requirements through the requirements file.
+
 
 ```
 $ pip install -r requirements.txt
@@ -21,9 +22,11 @@ python -m flask --app srm run
 ```
 # Usage
 
-optional:create a virtual enviroment before running the codeinstalatie
+optional: create a virtual enviroment before installing libraries
 
 >Note: Download GDAL and Fiona for your Python version [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/) first.
+Install the SRM requirements through the requirements file.
+
 Install the SRM requirements through the requirements file.
 ```
 $ pip install -r requirements.txt

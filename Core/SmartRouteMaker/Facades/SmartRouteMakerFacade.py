@@ -177,6 +177,7 @@ class SmartRouteMakerFacade():
         points_data= dict()
         points =[]
         elevation_data = srtm.get_data()
+        # 
         verhard = ["asphalt",
                     "paved",
                     "concrete",
@@ -271,9 +272,9 @@ class SmartRouteMakerFacade():
             
             
             for waypoint_start in range(0,len(points)-1):
-                # print(f"start: {waypoint_start}")
+                
                 waypoint_end = waypoint_start+1
-                #not needed because the last point is always the first because you go full circle
+                #not needed because the last point is always the first, because you go full circle
                 if waypoint_end >= len(points):
                     waypoint_end = 0
                 if points[waypoint_end] == 0 or points[waypoint_end] == "0": #some BULLSHIT happens here that i don't know how to fix
@@ -360,23 +361,6 @@ class SmartRouteMakerFacade():
 
         # Close the plot to free up resources
         plt.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         #calculate max incline
